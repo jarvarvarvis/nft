@@ -63,12 +63,14 @@ extern "C" {
 #define NFT_ANSI_GREEN
 #define NFT_ANSI_WHITE
 #define NFT_ANSI_COLORED(str, col) str
+
 #else
 #define NFT_ANSI_RESET "\033[0m"
 #define NFT_ANSI_RED   "\033[0;31m"
 #define NFT_ANSI_GREEN "\033[0;32m"
 #define NFT_ANSI_WHITE "\033[0;37m"
 #define NFT_ANSI_COLORED(str, col) NFT_ANSI_##col str NFT_ANSI_RESET
+
 #endif /* NFT_NO_COLOR */
 
 
@@ -104,13 +106,19 @@ struct nft_suite_data
 // By default, nft will output the source file for every suite.
 // The NFT_NO_SHOW_SUITE_FILE disables this feature.
 #ifndef NFT_NO_SHOW_SUITE_FILE
-// TODO: find a cross-platform way to handle suites without any arguments
-#define nft_suite(name, ...) \
+#define nft_param_suite(name, ...) \
 	static const char *__nft_suite_##name##_file_name = NFT_FILENAME; \
-	void __nft_suite_##name(struct nft_suite_data *__suite_data __VA_OPT__(,) __VA_ARGS__)
+	void __nft_suite_##name(struct nft_suite_data *__suite_data, __VA_ARGS__)
+#define nft_suite(name) \
+	static const char *__nft_suite_##name##_file_name = NFT_FILENAME; \
+	void __nft_suite_##name(struct nft_suite_data *__suite_data)
+
 #else
-#define nft_suite(name, ...) \
-	void __nft_suite_##name(struct nft_suite_data *__suite_data __VA_OPT__(,) __VA_ARGS__)
+#define nft_param_suite(name, ...) \
+	void __nft_suite_##name(struct ft_suite_data *__suite_data, __VA_ARGS__)
+#define nft_suite(name) \
+	void __nft_suite_##name(struct nft_suite_data *__suite_data)
+
 #endif /* NFT_NO_SHOW_SUITE_FILE */
 
 void nft_log_results(struct nft_suite_data *data)
@@ -127,17 +135,29 @@ void nft_log_results(struct nft_suite_data *data)
 #ifdef NFT_NO_FINAL_RESULTS
 
 #ifndef NFT_NO_SHOW_SUITE_FILE
-#define nft_run_suite(name, ...) \
+#define nft_run_param_suite(name, ...) \
 	struct nft_suite_data __nft_suite_##name##_data = {.tests = 0, .failed = 0}; \
 	NFT_PRINTF("Running suite \"%s\" (defined in %s)...\n", NFT_STRINGIFY(name), __nft_suite_##name##_file_name); \
-	__nft_suite_##name(&__nft_suite_##name##_data __VA_OPT__(,) __VA_ARGS__); \
+	__nft_suite_##name(&__nft_suite_##name##_data, __VA_ARGS__); \
 	nft_log_results(&__nft_suite_##name##_data);
+#define nft_run_suite(name) \
+	struct nft_suite_data __nft_suite_##name##_data = {.tests = 0, .failed = 0}; \
+	NFT_PRINTF("Running suite \"%s\" (defined in %s)...\n", NFT_STRINGIFY(name), __nft_suite_##name##_file_name); \
+	__nft_suite_##name(&__nft_suite_##name##_data); \
+	nft_log_results(&__nft_suite_##name##_data);
+
 #else
-#define nft_run_suite(name, ...) \
+#define nft_run_param_suite(name, ...) \
 	struct nft_suite_data __nft_suite_##name##_data = {.tests = 0, .failed = 0}; \
 	NFT_PRINTF("Running suite \"%s\"...\n", NFT_STRINGIFY(name)); \
-	__nft_suite_##name(&__nft_suite_##name##_data __VA_OPT__(,) __VA_ARGS__); \
+	__nft_suite_##name(&__nft_suite_##name##_data, __VA_ARGS__); \
 	nft_log_results(&__nft_suite_##name##_data);
+#define nft_run_suite(name) \
+	struct nft_suite_data __nft_suite_##name##_data = {.tests = 0, .failed = 0}; \
+	NFT_PRINTF("Running suite \"%s\"...\n", NFT_STRINGIFY(name)); \
+	__nft_suite_##name(&__nft_suite_##name##_data); \
+	nft_log_results(&__nft_suite_##name##_data);
+
 #endif /* NFT_NO_SHOW_SUITE_FILE */
 
 #else
@@ -145,21 +165,37 @@ void nft_log_results(struct nft_suite_data *data)
 static struct nft_suite_data __nft_final_data = {.tests = 0, .failed = 0};
 
 #ifndef NFT_NO_SHOW_SUITE_FILE
-#define nft_run_suite(name, ...) \
+#define nft_run_param_suite(name, ...) \
 	struct nft_suite_data __nft_suite_##name##_data = {.tests = 0, .failed = 0}; \
 	NFT_PRINTF("Running suite \"%s\" (defined in %s)...\n", NFT_STRINGIFY(name), __nft_suite_##name##_file_name); \
-	__nft_suite_##name(&__nft_suite_##name##_data __VA_OPT__(,) __VA_ARGS__); \
+	__nft_suite_##name(&__nft_suite_##name##_data, __VA_ARGS__); \
 	nft_log_results(&__nft_suite_##name##_data); \
 	__nft_final_data.tests  += __nft_suite_##name##_data.tests; \
 	__nft_final_data.failed += __nft_suite_##name##_data.failed;
+#define nft_run_suite(name) \
+	struct nft_suite_data __nft_suite_##name##_data = {.tests = 0, .failed = 0}; \
+	NFT_PRINTF("Running suite \"%s\" (defined in %s)...\n", NFT_STRINGIFY(name), __nft_suite_##name##_file_name); \
+	__nft_suite_##name(&__nft_suite_##name##_data); \
+	nft_log_results(&__nft_suite_##name##_data); \
+	__nft_final_data.tests  += __nft_suite_##name##_data.tests; \
+	__nft_final_data.failed += __nft_suite_##name##_data.failed;
+
 #else
-#define nft_run_suite(name, ...) \
+#define nft_run_param_suite(name, ...) \
 	struct nft_suite_data __nft_suite_##name##_data = {.tests = 0, .failed = 0}; \
 	NFT_PRINTF("Running suite \"%s\"...\n", NFT_STRINGIFY(name)); \
-	__nft_suite_##name(&__nft_suite_##name##_data __VA_OPT__(,) __VA_ARGS__); \
+	__nft_suite_##name(&__nft_suite_##name##_data, __VA_ARGS__); \
 	nft_log_results(&__nft_suite_##name##_data); \
 	__nft_final_data.tests  += __nft_suite_##name##_data.tests; \
 	__nft_final_data.failed += __nft_suite_##name##_data.failed;
+#define nft_run_suite(name) \
+	struct nft_suite_data __nft_suite_##name##_data = {.tests = 0, .failed = 0}; \
+	NFT_PRINTF("Running suite \"%s\"...\n", NFT_STRINGIFY(name)); \
+	__nft_suite_##name(&__nft_suite_##name##_data); \
+	nft_log_results(&__nft_suite_##name##_data); \
+	__nft_final_data.tests  += __nft_suite_##name##_data.tests; \
+	__nft_final_data.failed += __nft_suite_##name##_data.failed;
+
 #endif /* NFT_NO_SHOW_SUITE_FILE */
 
 #define nft_log_final() \

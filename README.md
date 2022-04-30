@@ -7,14 +7,24 @@ The library provides a few useful macros:
 ### Suites
 
 ```
-nft_suite(name, (args))
+nft_suite(name)
   
-	Define a new suite. (Optional: provide a list of arguments that can be passed to the suite
-	when it is run using the nft_run_suite macro)
+	Define a new suite. 
 
-nft_run_suite(name, (args))
+nft_run_suite(name)
   
-	Run the suite. (Optional: provide the arguments from the suite definition)
+	Run the suite.
+	By default, nft outputs the file which the suite was defined in.
+	You can disable this feature by defining the NFT_NO_SHOW_SUITE_FILE macro.
+
+nft_param_suite(name, args)
+
+	Define a new suite and a list of arguments that can be passed to it when it 
+	is run using the nft_run_param_suite macro.
+
+nft_run_param_suite(name, args)
+
+	Run the suite with the provided arguments from the suite definition.
 	By default, nft outputs the file which the suite was defined in.
 	You can disable this feature by defining the NFT_NO_SHOW_SUITE_FILE macro.
 

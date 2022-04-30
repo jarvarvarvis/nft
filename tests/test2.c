@@ -12,7 +12,7 @@ float slow_function(int input, int i)
 	return res;
 }
 
-nft_suite(slow, int input)
+nft_param_suite(slow, int input)
 {
 	for (int i = 0; i < input; ++i)
 	{
@@ -22,7 +22,7 @@ nft_suite(slow, int input)
 	}
 }
 
-nft_suite(first, int x)
+nft_param_suite(first, int x)
 {
 	nft_assert(x, "Check input value not null");
 	nft_assert_eq(x, 6, "Check input value equals 6");
@@ -31,7 +31,7 @@ nft_suite(first, int x)
 
 int main()
 {
-	nft_run_suite(first, 5);
-	nft_run_suite(slow, 100);
+	nft_run_param_suite(first, 5);
+	nft_run_param_suite(slow, 100);
 	nft_log_final();
 }
