@@ -15,6 +15,8 @@ nft_suite(name, (args))
 nft_run_suite(name, (args))
   
 	Run the suite. (Optional: provide the arguments from the suite definition)
+	By default, nft outputs the file which the suite was defined in.
+	You can disable this feature by defining the NFT_NO_SHOW_SUITE_FILE macro.
 
 ```
 
