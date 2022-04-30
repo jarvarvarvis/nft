@@ -45,10 +45,8 @@ extern "C" {
 #ifndef NFT_NO_STL
 #include <stdio.h>
 
-// TODO: find a cross-platform way to handle NFT_PRINTF without arguments
-// The issue is the following: GNU C and GNU C++ support this macro,
-// but other implementations don't do it necessarily.
-#define NFT_PRINTF(fmt, ...)          printf(fmt __VA_OPT__(,) __VA_ARGS__)
+#define NFT_PRINTF(fmt, ...)          printf(fmt, __VA_ARGS__)
+#define NFT_PRINT(text)               NFT_PRINTF("%s", text)
 
 #ifndef NFT_NO_STREQ
 #include <string.h>
@@ -80,11 +78,11 @@ extern "C" {
 	NFT_PRINTF("  %s... ", description); \
 	if ((value)) \
 	{ \
-	       	NFT_PRINTF(NFT_ANSI_COLORED("ok\n", GREEN)); \
+		NFT_PRINT(NFT_ANSI_COLORED("ok\n", GREEN)); \
 	} \
 	else \
 	{ \
-		NFT_PRINTF(NFT_ANSI_COLORED("failed\n", RED)); \
+		NFT_PRINT(NFT_ANSI_COLORED("failed\n", RED)); \
 		__suite_data->failed += 1; \
 	}
 
@@ -106,6 +104,7 @@ struct nft_suite_data
 // By default, nft will output the source file for every suite.
 // The NFT_NO_SHOW_SUITE_FILE disables this feature.
 #ifndef NFT_NO_SHOW_SUITE_FILE
+// TODO: find a cross-platform way to handle suites without any arguments
 #define nft_suite(name, ...) \
 	static const char *__nft_suite_##name##_file_name = NFT_FILENAME; \
 	void __nft_suite_##name(struct nft_suite_data *__suite_data __VA_OPT__(,) __VA_ARGS__)
@@ -117,7 +116,7 @@ struct nft_suite_data
 void nft_log_results(struct nft_suite_data *data)
 {
 	if (data->failed == 0)
-		NFT_PRINTF("\nNo tests failed.\n\n");
+		NFT_PRINT("\nNo tests failed.\n\n");
 	else
 		NFT_PRINTF("\n%d out of %d test(s) failed.\n\n", 
 				data->failed, data->tests);
@@ -164,9 +163,9 @@ static struct nft_suite_data __nft_final_data = {.tests = 0, .failed = 0};
 #endif /* NFT_NO_SHOW_SUITE_FILE */
 
 #define nft_log_final() \
-	NFT_PRINTF("\n ====== Final ====== \n"); \
+	NFT_PRINT("\n ====== Final ====== \n"); \
 	nft_log_results(&__nft_final_data); \
-	NFT_PRINTF(" =================== \n")
+	NFT_PRINT(" =================== \n")
 
 #endif /* NFT_NO_FINAL_RESULTS */
 
