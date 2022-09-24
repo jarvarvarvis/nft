@@ -115,7 +115,7 @@ struct nft_suite_data
 
 #else
 #define nft_param_suite(name, ...) \
-	void __nft_suite_##name(struct ft_suite_data *__suite_data, __VA_ARGS__)
+	void __nft_suite_##name(struct nft_suite_data *__suite_data, __VA_ARGS__)
 #define nft_suite(name) \
 	void __nft_suite_##name(struct nft_suite_data *__suite_data)
 
