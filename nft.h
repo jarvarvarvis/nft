@@ -75,7 +75,7 @@ extern "C" {
 /// Tests
 #define nft_assert(value, description) \
 	__suite_data->tests += 1; \
-	NFT_PRINTF(" %s... ", description); \
+	NFT_PRINTF("  %s... ", description); \
 	if (value) \
 	{ \
 		NFT_PRINT(NFT_ANSI_COLORED("ok\n", GREEN)); \
@@ -97,7 +97,7 @@ extern "C" {
 
 #define nft_assert_va(value, description, ...) \
 	__suite_data->tests += 1; \
-	NFT_PRINTF(" " description "... ", __VA_ARGS__); \
+	NFT_PRINTF("  " description "... ", __VA_ARGS__); \
 	if (value) \
 	{ \
 		NFT_PRINT(NFT_ANSI_COLORED("ok\n", GREEN)); \
