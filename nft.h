@@ -75,8 +75,8 @@ extern "C" {
 /// Tests
 #define nft_assert(value, description) \
 	__suite_data->tests += 1; \
-	NFT_PRINTF("  %s... ", description); \
-	if ((value)) \
+	NFT_PRINT(" " description "... "); \
+	if (value) \
 	{ \
 		NFT_PRINT(NFT_ANSI_COLORED("ok\n", GREEN)); \
 	} \
@@ -92,6 +92,28 @@ extern "C" {
 #ifndef NFT_NO_STREQ
 #define nft_assert_streq(a, b, description)  nft_assert(NFT_STRCMP((a), (b)) == 0, description)
 #define nft_assert_strneq(a, b, description) nft_assert(NFT_STRCMP((a), (b)) != 0, description)
+#endif /* NFT_NO_STREQ */
+
+
+#define nft_assert_va(value, description, ...) \
+	__suite_data->tests += 1; \
+	NFT_PRINTF(" " description "... ", __VA_ARGS__); \
+	if (value) \
+	{ \
+		NFT_PRINT(NFT_ANSI_COLORED("ok\n", GREEN)); \
+	} \
+	else \
+	{ \
+		NFT_PRINT(NFT_ANSI_COLORED("failed\n", RED)); \
+		__suite_data->failed += 1; \
+	}
+
+#define nft_assert_eq_va(a, b, description, ...)     nft_assert_va((a) == (b), description, __VA_ARGS__)
+#define nft_assert_neq_va(a, b, description, ...)    nft_assert_va((a) != (b), description, __VA_ARGS__)
+
+#ifndef NFT_NO_STREQ
+#define nft_assert_streq_va(a, b, description, ...)  nft_assert_va(NFT_STRCMP((a), (b)) == 0, description, __VA_ARGS__)
+#define nft_assert_strneq_va(a, b, description, ...) nft_assert_va(NFT_STRCMP((a), (b)) != 0, description, __VA_ARGS__)
 #endif /* NFT_NO_STREQ */
 
 /// Test suites
